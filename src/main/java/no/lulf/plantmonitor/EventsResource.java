@@ -20,15 +20,11 @@ public class EventsResource {
     private final Map<String, Session> sessions = new ConcurrentHashMap<>();
 
     private Object lastEvent;
-    private Object lastCommand;
 
     @OnOpen
     public void onOpen(Session session) {
         if (lastEvent != null) {
             session.getAsyncRemote().sendObject(lastEvent);
-        }
-        if (lastCommand != null) {
-            session.getAsyncRemote().sendObject(lastCommand);
         }
         sessions.put(session.getId(), session);
     }
