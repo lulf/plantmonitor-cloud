@@ -2,13 +2,13 @@ kind: Service
 apiVersion: v1
 
 metadata:
-  name: quarkus-mqtt-integration-starter
+  name: plantmonitor
   labels:
-    app.kubernetes.io/name: quarkus-mqtt-integration-starter
+    app.kubernetes.io/name: plantmonitor
 
 spec:
   selector:
-    app.kubernetes.io/name: quarkus-mqtt-integration-starter
+    app.kubernetes.io/name: plantmonitor
   ports:
     - port: 8080
       name: http

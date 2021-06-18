@@ -3,9 +3,9 @@ kind: Secret
 apiVersion: v1
 
 metadata:
-  name: quarkus-mqtt-integration-starter
+  name: plantmonitor
   labels:
-    app.kubernetes.io/name: quarkus-mqtt-integration-starter
+    app.kubernetes.io/name: plantmonitor
 
 #stringData:
 #  DROGUE_API_USER: "me"
@@ -15,11 +15,11 @@ kind: ConfigMap
 apiVersion: v1
 
 metadata:
-  name: quarkus-mqtt-integration-starter
+  name: plantmonitor
   labels:
-    app.kubernetes.io/name: quarkus-mqtt-integration-starter
+    app.kubernetes.io/name: plantmonitor
 
 data:
-  DROGUE_INTEGRATION_MQTT_HOST: mqtt-integration-drogue-dev.apps.wonderful.iot-playground.org
+  DROGUE_INTEGRATION_MQTT_HOST: mqtt.sandbox.drogue.cloud
   DROGUE_INTEGRATION_MQTT_PORT: "443"
-  DROGUE_INTEGRATION_APPLICATION: drogue-public-temperature
+  DROGUE_INTEGRATION_APPLICATION: plantmonitor

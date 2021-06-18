@@ -2,9 +2,9 @@ apiVersion: route.openshift.io/v1
 kind: Route
 
 metadata:
-  name: quarkus-mqtt-integration-starter
+  name: plantmonitor
   labels:
-    app.kubernetes.io/name: quarkus-mqtt-integration-starter
+    app.kubernetes.io/name: plantmonitor
 
 spec:
   port:
@@ -14,4 +14,4 @@ spec:
     termination: edge
   to:
     kind: Service
-    name: quarkus-mqtt-integration-starter
+    name: plantmonitor

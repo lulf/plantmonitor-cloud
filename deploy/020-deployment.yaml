@@ -2,23 +2,23 @@ kind: Deployment
 apiVersion: apps/v1
 
 metadata:
-  name: quarkus-mqtt-integration-starter
+  name: plantmonitor
   labels:
-    app.kubernetes.io/name: quarkus-mqtt-integration-starter
+    app.kubernetes.io/name: plantmonitor
 
 spec:
   replicas: 1
   selector:
     matchLabels:
-      app.kubernetes.io/name: quarkus-mqtt-integration-starter
+      app.kubernetes.io/name: plantmonitor
   template:
     metadata:
       labels:
-        app.kubernetes.io/name: quarkus-mqtt-integration-starter
+        app.kubernetes.io/name: plantmonitor
     spec:
       containers:
         - name: service
-          image: ghcr.io/drogue-iot/quarkus-mqtt-integration-starter-jvm:latest
+          image: docker.io/lulf/plantmonitor-jvm:latest
           imagePullPolicy: Always
           ports:
             - containerPort: 8080
@@ -33,6 +33,6 @@ spec:
               path: /q/health/ready
           envFrom:
             - secretRef:
-                name: quarkus-mqtt-integration-starter
+                name: plantmonitor
             - configMapRef:
-                name: quarkus-mqtt-integration-starter
+                name: plantmonitor
