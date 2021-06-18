@@ -13,7 +13,8 @@ public class DeviceEvent {
     private String deviceId;
     private Instant timestamp;
     private double temperature;
-    private Location location;
+    private double humidity;
+    private int soil;
 
     public void setDeviceId(String deviceId) {
         this.deviceId = deviceId;
@@ -39,21 +40,30 @@ public class DeviceEvent {
         return this.temperature;
     }
 
-    public void setLocation(Location location) {
-        this.location = location;
+    public double getHumidity() {
+        return humidity;
     }
 
-    public Location getLocation() {
-        return location;
+    public void setHumidity(double humidity) {
+        this.humidity = humidity;
     }
 
-    @Override
-    public String toString() {
-        return new StringJoiner(", ", DeviceEvent.class.getSimpleName() + "[", "]")
-                .add("deviceId='" + deviceId + "'")
-                .add("timestamp=" + timestamp)
-                .add("temperature=" + temperature)
-                .add("location=" + location)
-                .toString();
+    public int getSoil() {
+        return soil;
+    }
+
+    public void setSoil(int soil) {
+        this.soil = soil;
+    }
+
+    @java.lang.Override
+    public java.lang.String toString() {
+        return "DeviceEvent{" +
+                "deviceId='" + deviceId + '\'' +
+                ", timestamp=" + timestamp +
+                ", temperature=" + temperature +
+                ", humidity=" + humidity +
+                ", soil=" + soil +
+                '}';
     }
 }

@@ -16,7 +16,6 @@ import com.fasterxml.jackson.databind.ObjectMapper;
 import io.cloudevents.core.provider.EventFormatProvider;
 import io.cloudevents.jackson.JsonFormat;
 import io.cloudevents.jackson.PojoCloudEventDataMapper;
-import io.drogue.iot.demo.Channels;
 import io.drogue.iot.demo.data.DeviceEvent;
 import io.drogue.iot.demo.data.Payload;
 import io.quarkus.runtime.Startup;
@@ -40,8 +39,8 @@ public class Receiver {
      * @param rawMessage The raw MQTT message.
      * @return The processed {@link DeviceEvent}, or {@code null} if the event couldn't be processed.
      */
-    @Incoming(Channels.DROGUE_INBOUND)
-    @Outgoing(Channels.TELEMETRY)
+    @Incoming("drogue-inbound")
+    @Outgoing("telemetry)
     @Broadcast
     public DeviceEvent process(Message<byte[]> rawMessage) {
 
@@ -65,7 +64,7 @@ public class Receiver {
         LOG.debug("Received event: {}", message);
 
         var schema = message.getDataSchema();
-        if (schema == null || !schema.toString().equals("urn:drogue:iot:temperature")) {
+        if (schema == null || !schema.toString().equals("urn:no:lulf:plantmonitor")) {
             LOG.info("Unknown data schema: {}", schema);
             return null;
         }
@@ -101,7 +100,8 @@ public class Receiver {
         }
         device.setTimestamp(timestamp.toInstant());
         device.setTemperature(payload.getTemperature());
-        device.setLocation(payload.getGeoloc());
+        device.setHumidity(payload.getHumidity());
+        device.setSoil(payload.getSoil());
 
         // done
 

@@ -2,22 +2,19 @@ package io.drogue.iot.demo;
 
 import javax.enterprise.context.ApplicationScoped;
 
+import io.netty.handler.logging.LogLevel;
 import org.eclipse.microprofile.reactive.messaging.Incoming;
 import org.eclipse.microprofile.reactive.messaging.Outgoing;
 
-import io.drogue.iot.demo.data.DeviceCommand;
 import io.drogue.iot.demo.data.DeviceEvent;
 import io.smallrye.reactive.messaging.annotations.Broadcast;
+import org.slf4j.LoggerFactory;
 
-/**
- * Example processor, which can generate a command based on an event.
- */
 @ApplicationScoped
 public class Processor {
-    @Incoming(Channels.TELEMETRY)
-    @Outgoing(Channels.COMMAND)
-    @Broadcast
-    public DeviceCommand process(final DeviceEvent event) {
-        return null;
+    private static final Logger LOG = LoggerFactory.getLogger(Processor.class);
+    @Incoming("telemetry")
+    public void process(final DeviceEvent event) {
+        LOG.info("We got event", event);
     }
 }

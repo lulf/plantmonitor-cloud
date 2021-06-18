@@ -1,28 +1,34 @@
 package io.drogue.iot.demo.data;
 
-import com.fasterxml.jackson.annotation.JsonProperty;
-
 import io.quarkus.runtime.annotations.RegisterForReflection;
 
 @RegisterForReflection
 public class Payload {
     private double temperature;
-    private Location geoloc;
-
-    @JsonProperty("temp")
-    public void setTemperature(double temperature) {
-        this.temperature = temperature;
-    }
+    private double humidity;
+    private int soil;
 
     public double getTemperature() {
         return temperature;
     }
 
-    public void setGeoloc(Location geoloc) {
-        this.geoloc = geoloc;
+    public void setTemperature(double temperature) {
+        this.temperature = temperature;
     }
 
-    public Location getGeoloc() {
-        return geoloc;
+    public double getHumidity() {
+        return humidity;
+    }
+
+    public void setHumidity(double humidity) {
+        this.humidity = humidity;
+    }
+
+    public int getSoil() {
+        return soil;
+    }
+
+    public void setSoil(int soil) {
+        this.soil = soil;
     }
 }

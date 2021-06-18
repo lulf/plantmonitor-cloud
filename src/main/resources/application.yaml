@@ -1,15 +1,15 @@
 drogue:
   integration:
     mqtt:
-      host: mqtt-integration-drogue-dev.apps.wonderful.iot-playground.org
+      host: mqtt-integration.sandbox.drogue.cloud
       port: 443
       ssl: true
-      clientId: drogue-iot-quarkus-demo
+      clientId: plantmonitor
       # Can be an OAuth2 token, username + API key, or leave it empty for anonymous users.
-      username:
-      password:
+      username: lulf
+      password: drg_hy9nYa_NApUt9jJ16GKjvAQjtL4P7QnehAcuc1np8c0
 
-    application: drogue-public-temperature
+    application: plantmonitor
 
 mp:
   messaging:
@@ -28,19 +28,6 @@ mp:
         password: ${drogue.integration.mqtt.password}
         connect-timeout-seconds: 60000 # see: https://github.com/smallrye/smallrye-reactive-messaging/issues/1246
         broadcast: true
-    #
-    # Configure the MQTT sink (we send commands to)
-    #
-    outgoing:
-      drogue-outbound:
-        type: smallrye-mqtt
-        ssl: ${drogue.integration.mqtt.ssl}
-        client-id: ${drogue.integration.mqtt.clientId}
-        host: ${drogue.integration.mqtt.host}
-        port: ${drogue.integration.mqtt.port}
-        username: ${drogue.integration.mqtt.username}
-        password: ${drogue.integration.mqtt.password}
-        connect-timeout-seconds: 60000 # see: https://github.com/smallrye/smallrye-reactive-messaging/issues/1246
 
 "%dev":
   quarkus:
