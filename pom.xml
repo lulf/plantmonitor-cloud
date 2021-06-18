@@ -3,8 +3,8 @@
          xmlns="http://maven.apache.org/POM/4.0.0"
          xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance">
     <modelVersion>4.0.0</modelVersion>
-    <groupId>io.drogue.iot.demo</groupId>
-    <artifactId>drogue-quarkus-mqtt-integration-starter</artifactId>
+    <groupId>no.lulf.plantmonitor</groupId>
+    <artifactId>plantmonitor</artifactId>
     <version>1.0.0-SNAPSHOT</version>
     <properties>
         <compiler-plugin.version>3.8.1</compiler-plugin.version>

@@ -1,4 +1,4 @@
-package io.drogue.iot.demo.data;
+package no.lulf.plantmonitor;
 
 import io.quarkus.runtime.annotations.RegisterForReflection;
 

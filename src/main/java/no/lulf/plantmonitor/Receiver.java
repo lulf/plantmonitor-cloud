@@ -1,10 +1,11 @@
-package io.drogue.iot.demo.integration;
+package no.lulf.plantmonitor;
 
 import static io.cloudevents.core.CloudEventUtils.mapData;
 
 import javax.enterprise.context.ApplicationScoped;
 import javax.inject.Inject;
 
+import io.smallrye.reactive.messaging.annotations.Broadcast;
 import org.eclipse.microprofile.reactive.messaging.Incoming;
 import org.eclipse.microprofile.reactive.messaging.Message;
 import org.eclipse.microprofile.reactive.messaging.Outgoing;
@@ -16,10 +17,7 @@ import com.fasterxml.jackson.databind.ObjectMapper;
 import io.cloudevents.core.provider.EventFormatProvider;
 import io.cloudevents.jackson.JsonFormat;
 import io.cloudevents.jackson.PojoCloudEventDataMapper;
-import io.drogue.iot.demo.data.DeviceEvent;
-import io.drogue.iot.demo.data.Payload;
 import io.quarkus.runtime.Startup;
-import io.smallrye.reactive.messaging.annotations.Broadcast;
 
 /**
  * Receive events from the Drogue IoT MQTT integration.
@@ -40,7 +38,7 @@ public class Receiver {
      * @return The processed {@link DeviceEvent}, or {@code null} if the event couldn't be processed.
      */
     @Incoming("drogue-inbound")
-    @Outgoing("telemetry)
+    @Outgoing("telemetry")
     @Broadcast
     public DeviceEvent process(Message<byte[]> rawMessage) {
 
