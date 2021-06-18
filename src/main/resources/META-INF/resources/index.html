@@ -123,6 +123,7 @@
     <link rel="icon" type="image/svg+xml" href="/favicon.svg">
     <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
     <script src="https://cdnjs.cloudflare.com/ajax/libs/Chart.js/3.3.2/chart.min.js" integrity="sha512-VCHVc5miKoln972iJPvkQrUYYq7XpxXzvqNfiul1H4aZDwGBGC0lq373KNleaB2LpnC2a/iNfE5zoRYmB4TRDQ==" crossorigin="anonymous" referrerpolicy="no-referrer"></script>
+    <script src="https://cdn.jsdelivr.net/npm/chartjs-adapter-date-fns@next/dist/chartjs-adapter-date-fns.bundle.min.js"></script>
 
     <link rel="stylesheet" href="https://unpkg.com/leaflet@1.7.1/dist/leaflet.css"/>
     <script src="https://unpkg.com/leaflet@1.7.1/dist/leaflet.js"></script>
@@ -198,7 +199,7 @@
 </body>
 
 <script>
-    const sensorTypes = ["temperature"]; //, "humidity", "soil"];
+    const sensorTypes = ["temperature", "humidity", "soil"];
     const maxWindow = 7 * 24 * 60 * 60; // Up to a month
     var window = 7 * 24 * 60 * 60; // Default 1 week window for graphs
     var invertedWindow = maxWindow - window;
@@ -214,6 +215,30 @@
 
      // Map of charts present in the DOM
     var charts = {};
+
+    const colorScheme = [
+        "#25CCF7","#FD7272","#54a0ff","#00d2d3",
+        "#1abc9c","#2ecc71","#3498db","#9b59b6","#34495e",
+        "#16a085","#27ae60","#2980b9","#8e44ad","#2c3e50",
+        "#f1c40f","#e67e22","#e74c3c","#ecf0f1","#95a5a6",
+        "#f39c12","#d35400","#c0392b","#bdc3c7","#7f8c8d",
+        "#55efc4","#81ecec","#74b9ff","#a29bfe","#dfe6e9",
+        "#00b894","#00cec9","#0984e3","#6c5ce7","#ffeaa7",
+        "#fab1a0","#ff7675","#fd79a8","#fdcb6e","#e17055",
+        "#d63031","#feca57","#5f27cd","#54a0ff","#01a3a4"
+    ];
+
+    const graphColor = function(device) {
+        var hash = 0, i, chr;
+        if (device.length === 0) return hash;
+        for (i = 0; i < device.length; i++) {
+            chr = device.charCodeAt(i);
+            hash  = ((hash << 5) - hash) + chr;
+            hash |= 0; // Convert to 32bit integer
+        }
+        var idx = Math.abs(hash) % colorScheme.length;
+        return colorScheme[idx];
+    };
 
     function connect() {
         let proto;
@@ -254,173 +279,152 @@
             }
         };
     }
-/*
-  const humidityChart = function (options, cdata, sensorData) {
-    cdata.labels = sensorData.map(function (v) { return new Date(v.timestamp * 1000); });
-
-    cdata.datasets = [];
-    for event in sensorData {
-
-    }
-
-
-      {
-        fill: false,
-        borderColor: '#fe8b36',
-        backgroundColor: '#fe8b36',
-        lineTension: 0,
-        label: 'Humidity',
-        steppedLine: false,
-        data: sensorData.filter(function(v) { return v.humidity != null; }).map(function (v) { return v.humidity; }),
-      }
-    ];
-
-    if (window > 80000) {
-      options.elements = {
-        point: {
-          radius: 0
-        }
-      };
-    }
-    options.legend.display = true;
-    options.scales.yAxes = [
-      {
-        ticks: {
-          padding: 5,
-          display: true,
-          beginAtZero: true,
-        },
-        display: true,
-        scaleLabel: {
-          display: true,
-          labelString: "Humidity (%)"
-        }
-      }
-    ];
-  };*/
 
   // Temperature charts show temperature, potentially with multiple values
   const temperatureChart = function (options, cdata, sensorData) {
-    cdata.labels = sensorData.map(function (v) { return new Date(v.timestamp * 1000); });
+    cdata.labels = [];
 
     var deviceData = new Map();
     for (var event of sensorData) {
         if (deviceData.get(event.deviceId) === undefined) {
             deviceData.set(event.deviceId, []);
         }
-        deviceData.get(event.deviceId).push(event.value)
+        deviceData.get(event.deviceId).push({x: new Date(event.timestamp * 1000), y: event.value})
     }
 
     cdata.datasets = [];
     deviceData.forEach(function (data, device) {
+        const color = graphColor(device);
         cdata.datasets.push({
             fill: false,
-            borderColor: '#fe8b36',
-            backgroundColor: '#fe8b36',
+            borderColor: color,
+            backgroundColor: color,
             lineTension: 0,
             label: device,
             steppedLine: false,
             data: data,
         });
     });
-
-    if (window > 80000) {
-      options.elements = {
-        point: {
-          radius: 0
-        }
-      };
-    }
-    options.legend.display = true;
-    options.scales.yAxes = [
+    options.scales.y =
       {
         ticks: {
           padding: 5,
           display: true,
-          beginAtZero: true,
         },
-        display: true,
-        scaleLabel: {
+        title: {
           display: true,
-          labelString: "Temperature (Celcius)"
+          text: "Temperature (Celcius)"
         }
-      }
-    ];
+      };
+  };
+
+  // Humidity graph
+  const humidityChart = function (options, cdata, sensorData) {
+    cdata.labels = [];
+
+    var deviceData = new Map();
+    for (var event of sensorData) {
+        if (deviceData.get(event.deviceId) === undefined) {
+            deviceData.set(event.deviceId, []);
+        }
+        deviceData.get(event.deviceId).push({x: new Date(event.timestamp * 1000), y: event.value})
+    }
+
+    cdata.datasets = [];
+    deviceData.forEach(function (data, device) {
+        const color = graphColor(device);
+        cdata.datasets.push({
+            fill: false,
+            borderColor: color,
+            backgroundColor: color,
+            lineTension: 0,
+            label: device,
+            steppedLine: false,
+            data: data,
+        });
+    });
+    options.scales.y =
+      {
+        ticks: {
+          padding: 5,
+          display: true,
+        },
+        min: 0,
+        max: 100,
+        title: {
+          display: true,
+          text: "Humidity (%)"
+        }
+      };
+  };
+
+
+  // Soil charts show soil moisture
+  const soilChart = function (options, cdata, sensorData) {
+    cdata.labels = [];
+
+    var deviceData = new Map();
+    for (var event of sensorData) {
+        if (deviceData.get(event.deviceId) === undefined) {
+            deviceData.set(event.deviceId, []);
+        }
+        deviceData.get(event.deviceId).push({x: new Date(event.timestamp * 1000), y: event.value})
+    }
+
+    cdata.datasets = [];
+    deviceData.forEach(function (data, device) {
+        const color = graphColor(device);
+        cdata.datasets.push({
+            fill: false,
+            borderColor: color,
+            backgroundColor: color,
+            lineTension: 0,
+            label: device,
+            steppedLine: false,
+            data: data,
+        });
+    });
+    options.scales.y =
+      {
+        ticks: {
+          padding: 5,
+          display: true,
+        },
+        title: {
+          display: true,
+          text: "Soil"
+        }
+      };
   };
 
   // Chart options to reduce duplication between chart types
   const defaultChartOptions = function(min, max) {
     return {
+      type: 'line',
       animation: false,
       legend: {
         display: false
       },
       fill: false,
       responsive: true,
+      plugins: {
+        legend: {
+          position: 'top'
+        }
+      },
       scales: {
-        bounds: 'ticks',
-        xAxes: [
-          {
+        x: {
             type: 'time',
             display: true,
-            distribution: 'linear',
-            time: {
-              min: new Date(min * 1000),
-              max: new Date(max * 1000),
-            },
-            scaleLabel: {
-              display: false,
-              labelString: "Date"
-            }
-          }
-        ],
+            title: {
+              display: true,
+              text: "Date"
+             },
+        }
       }
     };
   };
 
-  // Soil charts show soil moisture, potentially with multiple values
-  /*
-  const soilChart = function (options, cdata, sensorData) {
-    cdata.labels = sensorData.map(function (v) { return new Date(v.timestamp * 1000); });
-
-     cdata.datasets = [{
-       fill: false,
-       borderColor: '#fe8b36',
-          backgroundColor: '#fe8b36',
-          lineTension: 0,
-          label: 'Monitor',
-          steppedLine: false,
-          data: sensorData,
-        }
-      ];
-
-      if (window > 80000) {
-        options.elements = {
-          point: {
-            radius: 0
-          }
-        };
-      }
-      options.legend.display = true;
-      options.scales.yAxes = [
-        {
-          ticks: {
-            padding: 5,
-            display: true,
-            beginAtZero: false,
-            //min: 0,
-            //max: 100,
-          },
-          display: true,
-          scaleLabel: {
-            display: true,
-            labelString: "Soil moisture (%)"
-          }
-        }
-      ];
-    }
-  };
-  */
 
     const updateChart = function (sensor) {
       const now = Math.floor(Date.now() / 1000);
@@ -442,11 +446,11 @@
           var cdata = {};
 
           if (sensor == "humidity") {
-            //  humidityChart(options, cdata, sensorData);
+              humidityChart(options, cdata, sensorData);
           } else if (sensor == "temperature") {
               temperatureChart(options, cdata, sensorData);
           } else if (sensor == "soil") {
-            //  soilChart(options, cdata, sensorData);
+              soilChart(options, cdata, sensorData);
           }
 
           if (cdata.datasets !== undefined && cdata.datasets.length > 0) {

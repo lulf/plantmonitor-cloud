@@ -1,7 +1,10 @@
 package no.lulf.plantmonitor;
 
+import java.sql.Array;
+import java.util.ArrayList;
+import java.util.List;
 import java.util.Map;
-import java.util.concurrent.ConcurrentHashMap;
+import java.util.concurrent.*;
 
 import javax.enterprise.context.ApplicationScoped;
 import javax.websocket.OnClose;
@@ -18,13 +21,13 @@ import io.vertx.core.json.JsonObject;
 public class EventsResource {
 
     private final Map<String, Session> sessions = new ConcurrentHashMap<>();
-
-    private Object lastEvent;
+    private static final int CAPACITY = 120_000;
+    private final ConcurrentLinkedDeque<Object> buffer = new ConcurrentLinkedDeque<>();
 
     @OnOpen
     public void onOpen(Session session) {
-        if (lastEvent != null) {
-            session.getAsyncRemote().sendObject(lastEvent);
+        for (Object event : buffer) {
+            session.getAsyncRemote().sendObject(event);
         }
         sessions.put(session.getId(), session);
     }
@@ -44,7 +47,10 @@ public class EventsResource {
         Object nextEvent = new JsonObject()
                 .put("type", "telemetry")
                 .put("payload", JsonObject.mapFrom(event)).toString();
-        this.lastEvent = nextEvent;
+        if (buffer.size() >= CAPACITY) {
+            buffer.pop();
+        }
+        buffer.add(nextEvent);
         sessions.values().forEach(s -> {
             s.getAsyncRemote().sendObject(nextEvent);
         });
