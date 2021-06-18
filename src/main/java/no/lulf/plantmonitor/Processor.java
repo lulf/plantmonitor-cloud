@@ -10,7 +10,7 @@ import org.slf4j.LoggerFactory;
 @ApplicationScoped
 public class Processor {
     private static final Logger LOG = LoggerFactory.getLogger(Processor.class);
-    @Incoming("telemetry")
+    @Incoming(Channels.TELEMETRY)
     public void process(final DeviceEvent event) {
         LOG.info("We got event {}", event);
     }

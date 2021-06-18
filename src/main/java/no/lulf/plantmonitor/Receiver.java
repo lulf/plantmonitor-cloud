@@ -37,8 +37,8 @@ public class Receiver {
      * @param rawMessage The raw MQTT message.
      * @return The processed {@link DeviceEvent}, or {@code null} if the event couldn't be processed.
      */
-    @Incoming("drogue-inbound")
-    @Outgoing("telemetry")
+    @Incoming(Channels.INBOUND)
+    @Outgoing(Channels.TELEMETRY)
     @Broadcast
     public DeviceEvent process(Message<byte[]> rawMessage) {
 
