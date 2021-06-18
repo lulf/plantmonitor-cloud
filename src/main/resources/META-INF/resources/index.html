@@ -1,0 +1,261 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>Drogue IoT MQTT integration starter for Quarkus!</title>
+    <style>
+        h1, h2, h3, h4, h5, h6 {
+            margin-bottom: 0.5rem;
+            font-weight: 400;
+            line-height: 1.5;
+        }
+
+        h1 {
+            font-size: 2.5rem;
+        }
+
+        h2 {
+            font-size: 2rem
+        }
+
+        h3 {
+            font-size: 1.75rem
+
+        }
+
+        h4 {
+            font-size: 1.5rem
+        }
+
+        h5 {
+            font-size: 1.25rem
+        }
+
+        h6 {
+            font-size: 1rem
+        }
+
+        .lead {
+            font-weight: 300;
+            font-size: 2rem;
+        }
+
+        .banner {
+            font-size: 2.7rem;
+            margin: 0;
+            padding: 2rem 1rem;
+            background-color: #0d1c2c;
+            color: white;
+        }
+
+        body {
+            margin: 0;
+            font-family: -apple-system, system-ui, "Segoe UI", Roboto, "Helvetica Neue", Arial, sans-serif, "Apple Color Emoji", "Segoe UI Emoji", "Segoe UI Symbol", "Noto Color Emoji";
+        }
+
+        code {
+            font-family: SFMono-Regular, Menlo, Monaco, Consolas, "Liberation Mono", "Courier New", monospace;
+            font-size: 87.5%;
+            color: #e83e8c;
+            word-break: break-word;
+        }
+
+        .left-column {
+            padding: .75rem;
+            max-width: 75%;
+            min-width: 55%;
+        }
+
+        .right-column {
+            padding: .75rem;
+            max-width: 25%;
+        }
+
+        .container {
+            display: flex;
+            width: 100%;
+        }
+
+        li {
+            margin: 0.75rem;
+        }
+
+        .right-section {
+            margin-left: 1rem;
+            padding-left: 0.5rem;
+        }
+
+        .right-section h3 {
+            padding-top: 0;
+            font-weight: 200;
+        }
+
+        .right-section ul {
+            border-left: 0.3rem solid #71aeef;
+            list-style-type: none;
+            padding-left: 0;
+        }
+
+        .example-code h3 {
+            font-weight: 200;
+        }
+
+        .row {
+            display: flex;
+        }
+
+        .row > div {
+            padding-right: 2rem;
+            flex-grow: 1;
+            flex-basis: 0;
+        }
+
+        .description {
+            padding-left: 2em;
+            max-width: 50em;
+        }
+
+        #map {
+            height: 50vh;
+        }
+
+    </style>
+    <link rel="icon" type="image/svg+xml" href="/favicon.svg">
+    <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
+
+    <link rel="stylesheet" href="https://unpkg.com/leaflet@1.7.1/dist/leaflet.css"/>
+    <script src="https://unpkg.com/leaflet@1.7.1/dist/leaflet.js"></script>
+</head>
+<body>
+
+<div class="banner lead">
+    Drogue IoT MQTT integration starter for Quarkus!
+</div>
+
+<div class="container">
+    <div class="left-column">
+
+        <h2>Device events</h2>
+
+        <div class="description">
+            <p>
+                This page shows the events, sent by a device publishing their temperature sensor information.
+            </p>
+        </div>
+
+        <!-- map -->
+        <div class="row">
+            <div id="map"></div>
+        </div>
+
+        <div class="row">
+            <div>
+                <h3>Latest message</h3>
+                <dl>
+                    <dt>Device ID</dt>
+                    <dd>
+                        <pre><code><span id="device_id">&nbsp;</span></code></pre>
+                    </dd>
+                    <dt>Timestamp</dt>
+                    <dd>
+                        <pre><code><span id="timestamp">&nbsp;</span></code></pre>
+                    </dd>
+                    <dt>Temperature</dt>
+                    <dd>
+                        <pre><code><span id="temperature">&nbsp;</span></code></pre>
+                    </dd>
+                </dl>
+            </div>
+
+        </div>
+
+    </div>
+    <div class="right-column">
+        <div class="right-section">
+            <h3>Do you like Drogue IoT cloud?</h3>
+            <ul>
+                <li>Go give it a star on <a href="https://github.com/drogue-iot/drogue-cloud">GitHub</a>.</li>
+            </ul>
+        </div>
+        <div class="right-section">
+            <h3>Source code</h3>
+            <ul>
+                <li><a href="https://github.com/drogue-iot/quarkus-mqtt-integration-starter"
+                       target="_blank">This starter</a></li>
+            </ul>
+        </div>
+        <div class="right-section">
+            <h3>More reading</h3>
+            <ul>
+                <li><a href="https://drogue.io" target="_blank">Drogue IoT</a></li>
+                <li><a href="https://sandbox.drogue.cloud" target="_blank">Public sandbox</a></li>
+                <li><a href="https://github.com/drogue-iot" target="_blank">GitHub organization</a></li>
+                <li><a href="https://matrix.to/#/#drogue-iot:matrix.org" target="_blank">Matrix chat channel</a></li>
+            </ul>
+        </div>
+    </div>
+</div>
+</body>
+
+<script>
+
+    const map = L.map('map').setView([0, 0], 2);
+
+    L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
+        attribution: '&copy; <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a> contributors'
+    }).addTo(map);
+
+    function connect() {
+        let proto;
+        if (location.protocol === "https:") {
+            proto = "wss://";
+        } else {
+            proto = "ws://";
+        }
+        console.log("Protocol: ", proto);
+        const socket = new WebSocket(proto + location.host + "/ws");
+        socket.onopen = function () {
+            console.log("Connected to the web socket");
+        };
+        socket.onclose = function () {
+            console.log("Connection lost, trying to re-connect");
+            setTimeout(function () {
+                connect();
+            }, 5000);
+        };
+        socket.onerror = function () {
+            console.log("Connection error, closing socket");
+            socket.close();
+        };
+        socket.onmessage = function (m) {
+            console.log("Got message: " + m.data);
+            const obj = JSON.parse(m.data);
+            console.log("Message: ", obj)
+            if (obj.type === "telemetry") {
+                const payload = obj.payload;
+                document.getElementById("device_id").innerText = payload.deviceId;
+                document.getElementById("timestamp").innerText = payload.timestamp;
+                document.getElementById("temperature").innerText = payload.temperature;
+                if (payload.location) {
+                    L.popup({
+                        "autoClose": true
+                    })
+                        .setLatLng(payload.location)
+                        .setContent('<p>' + payload.temperature + '°C</p>')
+                        .openOn(map);
+                }
+            } else if (obj.type === "command") {
+                const payload = obj.payload;
+                document.getElementById("cmd_device_id").innerText = payload.deviceId;
+                document.getElementById("cmd_command").innerText = payload.command;
+                document.getElementById("cmd_payload").innerText = payload.payload;
+            }
+
+        };
+    }
+
+    connect();
+
+</script>
+
+</html>
