@@ -15,10 +15,13 @@ import javax.websocket.server.ServerEndpoint;
 
 import org.eclipse.microprofile.reactive.messaging.Incoming;
 import io.vertx.core.json.JsonObject;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 @ServerEndpoint("/ws")
 @ApplicationScoped
 public class EventsResource {
+    private static final Logger LOG = LoggerFactory.getLogger(EventsResource.class);
 
     private final Map<String, Session> sessions = new ConcurrentHashMap<>();
     private static final int CAPACITY = 120_000;
@@ -42,8 +45,8 @@ public class EventsResource {
         sessions.remove(session.getId());
     }
 
-    @Incoming(Channels.TELEMETRY)
-    void telemetryEvent(DeviceEvent event) {
+    @Incoming(Channels.TELEMETRY_INBOUND)
+    public void telemetryEvent(DeviceEvent event) {
         Object nextEvent = new JsonObject()
                 .put("type", "telemetry")
                 .put("payload", JsonObject.mapFrom(event)).toString();

@@ -37,8 +37,8 @@ public class Receiver {
      * @param rawMessage The raw MQTT message.
      * @return The processed {@link DeviceEvent}, or {@code null} if the event couldn't be processed.
      */
-    @Incoming(Channels.INBOUND)
-    @Outgoing(Channels.TELEMETRY)
+    @Incoming(Channels.DROGUE_INBOUND)
+    @Outgoing(Channels.TELEMETRY_OUTBOUND)
     @Broadcast
     public DeviceEvent process(Message<byte[]> rawMessage) {
 
@@ -82,13 +82,13 @@ public class Receiver {
 
         // create device event
 
-        var device = new DeviceEvent();
-
         var deviceId = message.getExtension("device");
         if (deviceId == null) {
             LOG.info("Missing 'device' extension");
             return null;
         }
+
+        var device = new DeviceEvent();
         device.setDeviceId(deviceId.toString());
 
         var timestamp = message.getTime();

@@ -8,7 +8,6 @@ import io.quarkus.runtime.annotations.RegisterForReflection;
 /**
  * An incoming device message.
  */
-@RegisterForReflection
 public class DeviceEvent {
     private String deviceId;
     private Instant timestamp;

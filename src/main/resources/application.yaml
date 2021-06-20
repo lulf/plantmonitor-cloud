@@ -5,18 +5,46 @@ drogue:
       port: 443
       ssl: true
       clientId: plantmonitor
-      # Can be an OAuth2 token, username + API key, or leave it empty for anonymous users.
-      username: lulf
-      password: drg_hy9nYa_NApUt9jJ16GKjvAQjtL4P7QnehAcuc1np8c0
-
+      #username: X
+      #password: X
     application: plantmonitor
+
+kafka:
+  bootstrap:
+    servers: glider-01.srvs.cloudkafka.com:9094,glider-02.srvs.cloudkafka.com:9094,glider-03.srvs.cloudkafka.com:9094
+  security:
+    protocol: SASL_SSL
+  sasl:
+    mechanism: SCRAM-SHA-256
+    jaas:
+      config: org.apache.kafka.common.security.scram.ScramLoginModule required username="${kafka.username}" password="${kafka.password}";
+  #username: X
+  #password: X
 
 mp:
   messaging:
-    #
-    # Configure the MQTT source (we read from it)
-    #
+    outgoing:
+      # The outgoing channel of Kafka events we've written before
+      telemetry-outbound:
+        connector: smallrye-kafka
+        topic: y835nroj-default
+        value:
+          serializer: io.quarkus.kafka.client.serialization.ObjectMapperSerializer
+
     incoming:
+      # The incoming channel of Kafka events we want to persist
+      telemetry-inbound:
+        connector: smallrye-kafka
+        topic: y835nroj-default
+        commit-strategy: ignore
+        auto:
+          offset:
+            reset: earliest
+        value:
+          deserializer: no.lulf.plantmonitor.DeviceEventDeserializer
+      #
+      # Configure the MQTT source (we read from it)
+      #
       drogue-inbound:
         type: smallrye-mqtt
         ssl: ${drogue.integration.mqtt.ssl}
@@ -28,6 +56,8 @@ mp:
         password: ${drogue.integration.mqtt.password}
         connect-timeout-seconds: 60000 # see: https://github.com/smallrye/smallrye-reactive-messaging/issues/1246
         broadcast: true
+
+
 
 "%dev":
   quarkus:
