@@ -203,6 +203,7 @@
     const maxWindow = 7 * 24 * 60 * 60; // Up to a month
     var window = 7 * 24 * 60 * 60; // Default 1 week window for graphs
     var invertedWindow = maxWindow - window;
+    var updateInterval = 10000;
 
     var maxDate = new Date();
 
@@ -215,6 +216,9 @@
 
      // Map of charts present in the DOM
     var charts = {};
+
+    // Signal of whether or not we should update
+    var shouldUpdate = false;
 
     const colorScheme = [
         "#25CCF7","#FD7272","#54a0ff","#00d2d3",
@@ -263,9 +267,7 @@
             socket.close();
         };
         socket.onmessage = function (m) {
-            console.log("Got message: " + m.data);
             const obj = JSON.parse(m.data);
-            console.log("Message: ", obj)
             if (obj.type === "telemetry") {
                 const payload = obj.payload;
                 document.getElementById("device_id").innerText = payload.deviceId;
@@ -275,7 +277,7 @@
                     document.getElementById(sensor).innerText = payload[sensor];
                     sensorEvents.get(sensor).push({timestamp: new Date(payload.timestamp).getTime() / 1000, value: payload[sensor], deviceId: payload.deviceId});
                 }
-                updateCharts();
+                shouldUpdate = true;
             }
         };
     }
@@ -412,6 +414,10 @@
           position: 'top'
         }
       },
+      interaction: {
+        intersect: false
+      },
+      radius: 0,
       scales: {
         x: {
             type: 'time',
@@ -437,7 +443,6 @@
       const since = now - maxWindow;
 
       const chartName = "chart_" + sensor;
-      console.log("Going to update chart " + sensor);
       const element = document.getElementById(chartName);
 
       if (element != null) {
@@ -482,21 +487,19 @@
 
     // Periodically re-render charts to ensure time window is moving
     const updateCharts = function () {
-      console.log("UPDATE CHARTS");
-      for (var sensor of sensorTypes) {
+      if (shouldUpdate) {
+        for (var sensor of sensorTypes) {
           console.log("Updating chart for "+ sensor);
           updateChart(sensor);
-          /*
-          for (var [sensorId, sensorData] of sensors) {
-              console.log("Data for " + deviceId + " sensor " + sensorId + ": " + JSON.stringify(sensorData));
-          }
-          */
+        }
+        shouldUpdate = false;
       }
 
       maxDate = new Date();
-      setTimeout(updateCharts, 30000);
+      setTimeout(updateCharts, updateInterval);
     };
-    setTimeout(updateCharts, 30000);
+
+    setTimeout(updateCharts, 500);
 
     const addSeconds = function(existing, seconds) {
       var dt = new Date(existing);
