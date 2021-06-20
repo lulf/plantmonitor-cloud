@@ -27,7 +27,7 @@ mp:
       # The outgoing channel of Kafka events we've written before
       telemetry-outbound:
         connector: smallrye-kafka
-        topic: y835nroj-default
+        topic: ${kafka.topic}
         value:
           serializer: io.quarkus.kafka.client.serialization.ObjectMapperSerializer
 
@@ -35,7 +35,7 @@ mp:
       # The incoming channel of Kafka events we want to persist
       telemetry-inbound:
         connector: smallrye-kafka
-        topic: y835nroj-default
+        topic: ${kafka.topic}
         commit-strategy: ignore
         auto:
           offset:
